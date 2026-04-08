@@ -1,8 +1,8 @@
-# NexusScout
+# NeuralGuide
 
-**NexusScout** is a premium, terminal-based AI exploration and discovery tool. Built to assist developers and researchers, it bridges the gap between current state-of-the-art models and your specific engineering workflows by conducting live research and synthesizing highly accurate model recommendations.
+**NeuralGuide** is a premium, terminal-based AI exploration and discovery tool. Built to assist developers and researchers, it bridges the gap between current state-of-the-art models and your specific engineering workflows by conducting live research and synthesizing highly accurate model recommendations.
 
-![NexusScout TUI](https://img.shields.io/badge/Interface-CLI_TUI-bright_cyan?style=for-the-badge&logoColor=white) 
+![NeuralGuide TUI](https://img.shields.io/badge/Interface-CLI_TUI-bright_cyan?style=for-the-badge&logoColor=white) 
 ![Ollama Support](https://img.shields.io/badge/Engine-Ollama-bright_green?style=for-the-badge&logo=ollama&logoColor=white)
 ![Tavily API](https://img.shields.io/badge/Research-Tavily-bright_magenta?style=for-the-badge&logoColor=white)
 
@@ -12,14 +12,14 @@
 
 - **Tavily Research Integration (`tavily_utils.py`)**: Initiates a real-time web scrape to pull SOTA SWEBENCH metrics, price drops, and context window updates before evaluating SOTA agent viability.
 - **Local Analytics Synthesis (`agent_core.py`)**: Discards generic ChatGPT responses by strictly utilizing your local privacy-first Ollama LLM to synthesize data into hard, factual outputs.
-- **Enforced Model Yield**: For every search, NexusScout is prompt-engineered to guarantee at least **7 diverse model recommendations** (from Frontier models to Open-source self-hostable powerhouses), formatted flawlessly.
+- **Enforced Model Yield**: For every search, NeuralGuide is prompt-engineered to guarantee at least **7 diverse model recommendations** (from Frontier models to Open-source self-hostable powerhouses), formatted flawlessly.
 - **Premium TUI UI (`theme.py` & `main.py`)**: Uses high-performance rendering from `rich` to provide animated components, dynamic color styling, and exclusive Nerd Font icons in a layout that elegantly supports terminal scrolling output.
 
 ---
 
 ## Installation & Setup
 
-NexusScout relies on strict dependency management via [`uv`](https://docs.astral.sh/uv/) for maximum startup performance.
+NeuralGuide relies on strict dependency management via [`uv`](https://docs.astral.sh/uv/) for maximum startup performance.
 
 ### Prerequisites
 1. **Ollama**: Needs to be installed and running a high-capability model locally (e.g., `qwen3.5:cloud` or `llama3-70b`).
@@ -30,8 +30,8 @@ NexusScout relies on strict dependency management via [`uv`](https://docs.astral
 
 1. **Clone & Enter Repository**
    ```bash
-   git clone https://github.com/YourUsername/NexusScout.git
-   cd NexusScout
+   git clone https://github.com/YourUsername/NeuralGuide.git
+   cd NeuralGuide
    ```
 
 2. **Add API Keys**
@@ -57,7 +57,7 @@ NexusScout relies on strict dependency management via [`uv`](https://docs.astral
 1. Start the tool (`uv run python main.py`).
 2. Enter your discovery query, for example: `"Best models for processing multi-step complex system refactoring"`.
 3. Wait for the `Synthesizing Deep Research` progress indicator to finish.
-4. NexusScout will print a beautiful, scrollable dashboard with 7 curated AI models suitable for your exact use case, alongside a table of your existing local library.
+4. NeuralGuide will print a beautiful, scrollable dashboard with 7 curated AI models suitable for your exact use case, alongside a table of your existing local library.
 
 ---
 *Created by [Rameez]. Proudly open-source.*

@@ -1,9 +1,9 @@
 import json
-import ollama
 from pydantic import BaseModel, Field
-from config import OLLAMA_HOST
+from config import OPENAI_API_KEY
 from tavily_utils import search_tavily
 from rich.console import Console
+from agents import Agent, Runner
 
 console = Console()
 
@@ -20,14 +20,14 @@ class ModelsResponse(BaseModel):
 def get_agentic_models_from_cloud(query: str) -> list[dict]:
     """
     Performs deep research using Tavily, then compiles a top model recommendation list
-    using the best local Ollama engine (e.g., qwen3.5:cloud).
+    using openai-agents SDK.
     """
     # 1. Start Web Research
     research_context = search_tavily(query)
 
     # 2. Compile system prompt with research data
     system_prompt = (
-        "You are 'NexusScout', a Senior AI Research & Discovery Engineer. "
+        "You are 'NeuralGuide', an AI Research & Discovery Agent. "
         "Your task is to perform an exhaustive evaluation of models for the user's specific query. "
         "Use the provided Research Context for latest benchmarks and pricing. "
         "CRITICAL REQUIREMENT: You MUST recommend EXACTLY 7 distinct models. NOT 1, NOT 3, but EXACTLY 7. "
@@ -38,42 +38,36 @@ def get_agentic_models_from_cloud(query: str) -> list[dict]:
         "Output MUST be a raw JSON object matching this schema exactly. "
         "Your JSON MUST contain exactly 7 items in the 'models' array:\n"
         "{\n"
-        "  'models': [\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' },\n"
-        "    { 'model_name': '...', 'description': '...', 'parameters': '...', 'key_features': '...', 'tool_calling': '...' }\n"
+        "  \"models\": [\n"
+        "    { \"model_name\": \"...\", \"description\": \"...\", \"parameters\": \"...\", \"key_features\": \"...\", \"tool_calling\": \"...\" }\n"
         "  ]\n"
-        "}"
+        "}\n\nDo not output markdown code blocks. Just valid JSON."
     )
 
-    # 3. Choose Local Discovery Engine
     try:
-        client = ollama.Client(host=OLLAMA_HOST)
-        models_list = client.list()
-        available_models = models_list.get('models', []) if isinstance(models_list, dict) else models_list.models
-        
+        from openai import OpenAI
+        client = OpenAI()
+        models_response = client.models.list()
+        available_models = [m.id for m in models_response.data]
+
         # Engine choice strategy
         engine_options = ["qwen3.5:cloud", "deepseek-v3.1:671b-cloud", "nemotron-3-super:cloud"]
-        engine_model = available_models[0].model if not isinstance(available_models[0], dict) else available_models[0]['name']
+        engine_model = available_models[0] if available_models else "gpt-4o"
         for opt in engine_options:
-            if any((m.model == opt if not isinstance(m, dict) else m['name'] == opt) for m in available_models):
+            if opt in available_models:
                 engine_model = opt
                 break
 
-        response = client.chat(
-            model=engine_model,
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": f"Discover top 7 models for: {query}"}
-            ],
-            format="json"
-        )
+        agent = Agent(name="NeuralGuide", instructions=system_prompt, model=engine_model)
+        result = Runner.run_sync(agent, f"Discover top 7 models for: {query}")
+        raw_content = result.final_output
         
-        raw_content = response['message']['content']
+        # Parse JSON and strip markdown backticks if present
+        if raw_content.startswith("```json"):
+            raw_content = raw_content.split("```json")[1].split("```")[0].strip()
+        elif raw_content.startswith("```"):
+            raw_content = raw_content.split("```")[1].split("```")[0].strip()
+            
         data = json.loads(raw_content)
         
         # Format the result list for UI component
@@ -91,7 +85,7 @@ def get_agentic_models_from_cloud(query: str) -> list[dict]:
     except Exception as e:
         return [{
             "Model Name": "Discovery Error",
-            "Description": f"Failed to perform research discovery: {str(e)}",
+            "Description": f"Failed to perform research discovery: {str(e)}\n\nOutput was: {raw_content if 'raw_content' in locals() else 'None'}",
             "Parameters": "!",
             "Key Features": "!",
             "Tool/Function Calling": "!"

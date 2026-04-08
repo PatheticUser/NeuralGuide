@@ -1,5 +1,5 @@
 """
-NexusScout - AI-Powered LLM Discovery Assistant
+NeuralGuide - AI-Powered LLM Discovery Assistant
 Enhanced TUI with Rich and Nerd Fonts
 """
 
@@ -22,7 +22,7 @@ from theme import (
     get_accent_color, make_gradient_bar, console
 )
 from config import APP_TITLE, APP_TAGLINE, APP_DESCRIPTION
-from ollama_utils import get_local_models, get_ollama_status
+from openai_utils import get_openai_status, get_local_models
 from agent_core import get_agentic_models_from_cloud
 
 
@@ -49,22 +49,22 @@ def create_header() -> Panel:
 
 def create_status_bar() -> Panel:
     """Create a status bar showing connection status."""
-    ollama_ok, ollama_status = get_ollama_status()
+    openai_ok, openai_status = get_openai_status()
 
     status_line = Text()
     status_line.append(f"{Icons.CONNECTED} ", style="bright_cyan")
     status_line.append("Status: ", style="dim white")
 
-    if ollama_ok:
+    if openai_ok:
         status_line.append(f"{Icons.ONLINE} ", style="bright_green")
-        status_line.append("Ollama Connected", style="bold bright_green")
+        status_line.append("OpenAI Connected", style="bold bright_green")
     else:
         status_line.append(f"{Icons.OFFLINE} ", style="bright_red")
-        status_line.append("Ollama Offline", style="bold bright_red")
+        status_line.append("OpenAI Offline", style="bold bright_red")
 
     return Panel(
         status_line,
-        border_style="bright_green" if ollama_ok else "bright_red",
+        border_style="bright_green" if openai_ok else "bright_red",
         box=box.ROUNDED,
         padding=(0, 2)
     )
@@ -316,7 +316,7 @@ def run_cli():
         # Loading animation
         console.print()
         with console.status(
-            f"[bold bright_magenta]{Icons.SYNC}  Synthesizing Deep Research (Tavily + Ollama)...[/]",
+            f"[bold bright_magenta]{Icons.SYNC}  Synthesizing Deep Research (Tavily + OpenAI Agents)...[/]",
             spinner="bouncingBar",
             spinner_style="bright_magenta"
         ):
@@ -349,7 +349,7 @@ def run_cli():
         # Local models table
         console.print()
         console.print(Rule(
-            f"[bold bright_green]{Icons.LOCAL}  Connected Ollama Model Library[/]",
+            f"[bold bright_green]{Icons.LOCAL}  Connected Local Model Library[/]",
             style="bright_green"
         ))
         console.print()
@@ -363,7 +363,7 @@ def run_cli():
     console.print()
     console.print(Align.center(
         Panel(
-            f"{Icons.QUIT} [bold bright_magenta]Thanks for using NexusScout![/]\n\n"
+            f"{Icons.QUIT} [bold bright_magenta]Thanks for using NeuralGuide![/]\n\n"
             f"[dim]Happy model hunting! {Icons.SPARKLE}[/]",
             border_style="bright_magenta",
             box=box.ROUNDED,
